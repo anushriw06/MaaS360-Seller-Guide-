@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaaS360 Email Generator</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.65;background:#f4f5f7;color:#1f2328}
+.topbar{background:#0f1923;border-bottom:3px solid #0f62fe;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-brand{color:#fff;font-size:16px;font-weight:700}
+.topbar-brand span{color:#74b1ff}
+.topbar-tag{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#c9d1d9;font-size:11px;padding:4px 12px;border-radius:20px}
+.wrap{max-width:900px;margin:0 auto;padding:32px 28px 100px}
+h1{font-size:22px;font-weight:700;margin-bottom:6px}
+h2{font-size:15px;font-weight:700;margin:24px 0 10px}
+h3{font-size:14px;font-weight:700;margin-bottom:8px}
+p.sub{color:#57606a;font-size:13px;margin-bottom:24px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:20px 22px;margin-bottom:18px}
+.form-label{display:block;font-size:11px;font-weight:700;color:#57606a;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+input[type=text],input[type=number],select,textarea{width:100%;padding:9px 12px;border:1px solid #d0d7de;border-radius:6px;font-size:13px;font-family:inherit;color:#1f2328;background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid #0f62fe;border-color:transparent}
+textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{margin-bottom:14px}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+hr.div{border:none;border-top:1px solid #e5e7eb;margin:20px 0}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{padding:11px 26px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit}
+.btn-primary{background:#0f62fe;color:#fff}
+.btn-primary:hover{background:#0353e9}
+.btn-secondary{background:#fff;color:#1f2328;border:1px solid #d0d7de}
+.btn-secondary:hover{background:#f0f1f3}
+.email-type-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.et-btn{padding:8px 16px;border:1px solid #d0d7de;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#57606a;font-family:inherit}
+.et-btn:hover{border-color:#0f62fe;color:#0f62fe}
+.et-btn.active{background:#0f62fe;color:#fff;border-color:#0f62fe}
+.info-box{background:#eef4ff;border:1px solid #c0d4f7;border-radius:6px;padding:12px 16px;font-size:13px;margin-bottom:18px}
+.helper{font-size:11px;color:#57606a;margin-top:4px}
+.required{color:#b91c1c;margin-left:2px}
+#customIndustryWrap{display:none;margin-top:8px}
+.alert-banner{background:#fef9c3;border:1px solid #fde047;border-radius:6px;padding:10px 14px;font-size:12px;color:#854d0e;font-weight:600;margin-bottom:12px;display:none;align-items:center;gap:8px}
+.alert-banner.show{display:flex}
+
+/* ── OUTPUT PANEL ── */
+#emailOutput{display:none;margin-top:28px}
+#emailOutput.visible{display:block}
+.output-layout{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start}
+@media(max-width:780px){.output-layout{grid-template-columns:1fr}}
+
+/* Preview card */
+.preview-card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.preview-toolbar{background:#0f1923;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.preview-title{color:#fff;font-size:12px;font-weight:600}
+.toolbar-btns{display:flex;gap:6px}
+.tbtn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:#fff;font-size:11px;padding:4px 11px;border-radius:4px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.tbtn:hover{background:rgba(255,255,255,0.18)}
+.preview-subj{background:#f7f8fa;border-bottom:1px solid #e5e7eb;padding:10px 16px;font-size:12px;color:#57606a}
+.preview-subj strong{color:#1f2328}
+/* The actual email preview rendered as HTML */
+#emailPreview{padding:20px 22px;font-family:Arial,sans-serif;font-size:10pt;line-height:1.6;color:#1f2328;min-height:200px}
+
+/* Raw text panel */
+.raw-card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}
+.raw-toolbar{background:#f7f8fa;border-bottom:1px solid #e5e7eb;padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.raw-title{font-size:12px;font-weight:600;color:#57606a}
+#rawText{width:100%;min-height:420px;padding:14px 16px;border:none;font-family:Arial,sans-serif;font-size:10pt;line-height:1.6;color:#1f2328;resize:vertical;outline:none;background:#fff}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">IBM Security <span>MaaS360</span> — Email Generator</div>
+  <div class="topbar-tag">IBM &amp; Partner Internal Only</div>
+</div>
+
+<div class="wrap">
+  <h1>Personalized Customer Email Generator</h1>
+  <p class="sub">Complete the fields below and click Generate Email. The output is Outlook-ready — formatted in Arial 10pt with bold headers, bullet points, and short paragraphs. Use the Preview panel to review, then copy to Outlook.</p>
+
+  <!-- CUSTOMER -->
+  <div class="card">
+    <h3>Customer Contact</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First Name <span class="required">*</span></label>
+        <input type="text" id="firstName" placeholder="e.g. Sarah">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name</label>
+        <input type="text" id="lastName" placeholder="e.g. Johnson">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input type="text" id="custTitle" placeholder="e.g. IT Director">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Company Name <span class="required">*</span></label>
+        <input type="text" id="company" placeholder="e.g. Acme Healthcare">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Industry <span class="required">*</span></label>
+      <select id="industry" onchange="toggleCustomIndustry()">
+        <option value="">Select an industry...</option>
+        <option value="Healthcare">Healthcare</option>
+        <option value="Financial Services">Financial Services</option>
+        <option value="Government / Public Sector">Government / Public Sector</option>
+        <option value="Education">Education</option>
+        <option value="Retail">Retail</option>
+        <option value="Manufacturing">Manufacturing</option>
+        <option value="Transportation &amp; Logistics">Transportation &amp; Logistics</option>
+        <option value="Technology">Technology</option>
+        <option value="Insurance">Insurance</option>
+        <option value="Energy &amp; Utilities">Energy &amp; Utilities</option>
+        <option value="Wholesale &amp; Distribution">Wholesale &amp; Distribution</option>
+        <option value="custom">Other / Custom Industry</option>
+      </select>
+      <div id="customIndustryWrap">
+        <input type="text" id="customIndustry" placeholder="e.g. Commercial HVAC Services">
+        <p class="helper">This name will appear verbatim in the email.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCOUNT -->
+  <div class="card">
+    <h3>Account &amp; Contract Details</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Current MaaS360 Edition <span class="required">*</span></label>
+        <select id="edition">
+          <option value="">Select edition...</option>
+          <option value="Essentials">MaaS360 Essentials</option>
+          <option value="Advanced">MaaS360 Advanced</option>
+          <option value="Premier">MaaS360 Premier</option>
+          <option value="Deluxe">MaaS360 Deluxe</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Annual Contract Value</label>
+        <input type="text" id="acv" placeholder="e.g. $24,500">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Contract Start Date</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contract End / Renewal Date</label>
+        <input type="date" id="endDate">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Purchased License Count <span class="required">*</span></label>
+        <input type="number" id="licensedCount" placeholder="e.g. 500" min="0">
+        <p class="helper">Exact number of purchased MaaS360 licenses</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Active Enrolled Device Count <span class="required">*</span></label>
+        <input type="number" id="activeCount" placeholder="e.g. 520" min="0">
+        <p class="helper">Actual number of devices currently enrolled</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Previous Purchases / Add-ons</label>
+      <input type="text" id="prevPurch" placeholder="e.g. Mobile Threat Defense add-on, TeamViewer Remote Support">
+    </div>
+  </div>
+
+  <!-- CONTEXT -->
+  <div class="card">
+    <h3>Business Context &amp; Pain Points</h3>
+    <div class="info-box">Write your raw notes — the generator rewrites them into professional business language. Your notes never appear in the email output.</div>
+    <div class="form-group">
+      <label class="form-label">Your Notes on Customer Situation</label>
+      <textarea id="pain" placeholder="e.g. currently over by 20 devices and customer wants better security&#10;e.g. CISO worried about phishing on mobile&#10;e.g. slow device enrollment, lots of help desk tickets"></textarea>
+    </div>
+  </div>
+
+  <!-- SELLER -->
+  <div class="card">
+    <h3>Your Details</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Your Name <span class="required">*</span></label>
+        <input type="text" id="sellerName" placeholder="e.g. Alex Rivera">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Title</label>
+        <input type="text" id="sellerTitle" placeholder="e.g. IBM Account Executive, MaaS360">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Your Phone</label>
+        <input type="text" id="sellerPhone" placeholder="e.g. +1 (312) 555-0198">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Email</label>
+        <input type="text" id="sellerEmail" placeholder="e.g. alex.rivera@ibm.com">
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL TYPE -->
+  <h2>Select Email Type</h2>
+  <div class="email-type-bar">
+    <button class="et-btn active" onclick="setType(this,'upsell')">Upsell &amp; Upgrade</button>
+    <button class="et-btn" onclick="setType(this,'renewal')">Renewal &amp; Expansion</button>
+    <button class="et-btn" onclick="setType(this,'security')">Security Risk</button>
+    <button class="et-btn" onclick="setType(this,'checkin')">Proactive Check-In</button>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="generate()">Generate Email</button>
+    <button class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="emailOutput">
+    <div id="renewalAlert" class="alert-banner">&#9888;&nbsp; Renewal is within 90 days — renewal urgency is reflected in this email.</div>
+    <div id="overageAlert"  class="alert-banner">&#9888;&nbsp; Active devices exceed purchased licenses — a true-up discussion is included.</div>
+
+    <div class="output-layout">
+      <!-- LEFT: PREVIEW -->
+      <div>
+        <div class="preview-card">
+          <div class="preview-toolbar">
+            <span class="preview-title">Outlook Preview</span>
+            <div class="toolbar-btns">
+              <button class="tbtn" onclick="copyHTML()">Copy for Outlook</button>
+              <button class="tbtn" onclick="openOutlook()">Open in Outlook</button>
+            </div>
+          </div>
+          <div class="preview-subj">
+            <strong>Subject: </strong><span id="subjectOut"></span>
+          </div>
+          <div id="emailPreview"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: RAW TEXT -->
+      <div>
+        <div class="raw-card">
+          <div class="raw-toolbar">
+            <span class="raw-title">Plain Text (for paste)</span>
+            <button class="tbtn" style="background:#f0f1f3;color:#1f2328;border-color:#d0d7de" onclick="copyRaw()">Copy Plain Text</button>
+          </div>
+          <textarea id="rawText" readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let emailType = 'upsell';
+
+function setType(btn,t){
+  document.querySelectorAll('.et-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  emailType=t;
+}
+function toggleCustomIndustry(){
+  document.getElementById('customIndustryWrap').style.display =
+    document.getElementById('industry').value==='custom'?'block':'none';
+}
+function clearForm(){
+  document.querySelectorAll('input,select,textarea').forEach(el=>el.value='');
+  document.getElementById('customIndustryWrap').style.display='none';
+  document.getElementById('emailOutput').classList.remove('visible');
+}
+function g(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function n(id){const v=parseInt(g(id),10);return isNaN(v)?null:v;}
+function fmtN(num){return num?num.toLocaleString():null;}
+function fmtDate(s){
+  if(!s)return null;
+  const d=new Date(s+'T00:00:00');
+  return d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+}
+function daysUntil(s){
+  if(!s)return null;
+  return Math.round((new Date(s+'T00:00:00')-new Date())/86400000);
+}
+function getIndustry(){
+  const sel=g('industry');
+  if(sel==='custom')return g('customIndustry')||'your industry';
+  return sel||'your industry';
+}
+
+// ── Pain rewriter — returns array of professional bullet strings ────────────
+function rewritePain(raw,licensed,active){
+  if(!raw||raw.length<3)return[];
+  const r=raw.toLowerCase();
+  const results=[];
+  const overage=active&&licensed&&active>licensed;
+  const diff=overage?(active-licensed):0;
+
+  // Device overage
+  if(overage||r.match(/over|exceed|too many device|more device|overage/)){
+    if(diff>0)
+      results.push('The active enrolled device count has grown beyond the originally licensed volume by '+diff.toLocaleString()+' device'+(diff!==1?'s':'')+'. A licensing review is recommended as part of the renewal process to ensure the agreement accurately reflects the current environment.');
+    else
+      results.push('Active device enrollment has grown beyond the originally licensed volume. A licensing review is recommended to ensure the agreement is correctly scoped for the current and anticipated device footprint.');
+  }
+  // Phishing specifically
+  if(r.match(/phish/))
+    results.push('There is a growing focus on protecting users from phishing attacks and malicious websites accessed from mobile devices — an area where mobile-specific security capabilities can provide meaningful risk reduction.');
+  // General security (not phishing)
+  else if(r.match(/secur|threat|malware|breach|mtd|attack|hack/))
+    results.push('Strengthening device-level security has become an increasing priority, with particular interest in improving threat visibility and the organization\'s ability to detect and respond to mobile-specific risks.');
+  // IT efficiency / help desk
+  if(r.match(/help.?desk|ticket|support|slow|enroll|onboard|setup/))
+    results.push('Reducing IT overhead and improving the speed and simplicity of device enrollment and onboarding have been identified as operational priorities for the upcoming term.');
+  // Compliance
+  if(r.match(/compli|hipaa|fedramp|gdpr|audit|regulat|pci|sox/))
+    results.push('Maintaining compliance with applicable regulatory frameworks and ensuring mobile devices are included in audit-ready reporting remains an important requirement.');
+  // BYOD
+  if(r.match(/byod|personal device|employee.owned/))
+    results.push('Managing the use of employee-owned devices in a way that protects corporate data while respecting employee privacy continues to be an operational consideration.');
+  // Visibility / inventory
+  if(r.match(/visib|inventory|track|monitor|report/))
+    results.push('Improving visibility across the full device fleet — including accurate inventory, compliance status, and activity reporting — has been identified as a priority.');
+  // Productivity / UX
+  if(r.match(/productiv|slow perform|user experi/))
+    results.push('Improving the day-to-day experience for end users and reducing friction in how employees access corporate resources from mobile devices is an important outcome for the team.');
+  // Cost / ROI
+  if(r.match(/cost|budget|saving|roi|value/))
+    results.push('Ensuring the MaaS360 investment is delivering measurable value and that licensing is appropriately scaled to the current environment is a consideration for the upcoming renewal.');
+  // Fallback
+  if(results.length===0)
+    results.push('The organization is looking to optimize its mobile endpoint environment and ensure it is well-positioned for the next contract term.');
+  return results;
+}
+
+// ── Value bullets by edition ───────────────────────────────────────────────
+function getValueBullets(edition){
+  const map={
+    'Essentials':[
+      'Centralized device visibility and control across iOS, Android, Windows, and macOS from a single management console',
+      'Automated policy enforcement ensuring every endpoint meets the security and compliance baseline',
+      'Streamlined app distribution and lifecycle management across all enrolled devices'
+    ],
+    'Deluxe':[
+      'Centralized multi-OS device management with automated policy enforcement',
+      'Secure corporate email, calendar, and contacts delivered through an encrypted container on managed and BYOD devices',
+      'AI-powered employee assistant reducing common IT support requests and improving user productivity'
+    ],
+    'Premier':[
+      'Full unified endpoint management with advanced analytics providing actionable insights into device health and user behavior',
+      'Secure browser and gateway controls protecting users while ensuring seamless access to approved corporate resources',
+      'Enhanced application security and data loss prevention across a distributed workforce'
+    ],
+    'Enterprise':[
+      'Comprehensive mobile threat management with active detection and remediation of malware and compromised devices',
+      'Secure mobile document collaboration and synchronization across managed devices',
+      'Full platform capabilities including AI-powered advisor, frontline device management, and advanced threat dashboards'
+    ]
+  };
+  return map[edition]||map['Essentials'];
+}
+
+// ── Smart recommendation — one logical step at a time ──────────────────────
+function getRecommendation(edition,painRaw,industry,licensed,active){
+  const r=(painRaw||'').toLowerCase();
+  const hasSec=r.match(/secur|threat|phish|malware|breach|mtd|attack/);
+  const hasPhish=r.match(/phish/);
+  const overage=licensed&&active&&active>licensed;
+  const regulated=['Healthcare','Financial Services','Government / Public Sector','Education','Insurance'].includes(industry);
+  let upgrade='', para='', secPara='';
+
+  // Logical one-step upgrade path: Essentials → Advanced → Premier → Deluxe
+  if(edition==='Essentials'){
+    upgrade='MaaS360 Advanced';
+    para='As your device footprint continues to grow, <strong>MaaS360 Advanced</strong> may provide the additional management and security capabilities that support a larger and more diverse endpoint environment. Advanced introduces secure mobile email and calendar access, expanded identity management, and AI-powered analytics — capabilities that become increasingly valuable as the organization scales and compliance requirements evolve.';
+  } else if(edition==='Advanced'){
+    upgrade='MaaS360 Premier';
+    para='<strong>MaaS360 Premier</strong> is a natural next step for organizations looking to go beyond core device management and into deeper security controls. Premier adds secure browser and gateway capabilities, advanced application security, and content management — giving your team greater control over how corporate resources are accessed from mobile devices, which is particularly relevant as the workforce becomes more distributed.';
+  } else if(edition==='Premier'){
+    upgrade='MaaS360 Deluxe';
+    para='For organizations seeking the most comprehensive mobile endpoint protection available, <strong>MaaS360 Deluxe</strong> adds Mobile Threat Management, document editor and synchronization capabilities, and the full suite of gateway and security controls. This tier is particularly well-suited for environments where mobile devices are central to daily operations and where threat detection and response capabilities are a priority.';
+  } else {
+    // Deluxe — already at top, discuss add-ons
+    upgrade='Mobile Threat Defense or TeamViewer Remote Support add-ons';
+    para='With MaaS360 Deluxe already in place, the focus shifts to ensuring all available capabilities are fully activated and utilized. The <strong>Mobile Threat Defense add-on</strong> (powered by Zimperium) delivers real-time device, app, and network threat detection directly within the MaaS360 console — a meaningful enhancement for organizations with elevated security requirements. The <strong>TeamViewer Remote Support add-on</strong> provides real-time remote device access, reducing help desk resolution time and minimizing end-user downtime.';
+  }
+
+  // Security-specific paragraph (shown in security section, separate from upgrade rec)
+  if(hasSec){
+    if(hasPhish){
+      secPara='One area many organizations are focusing on is protecting users from phishing attacks and malicious websites accessed from mobile devices. <strong>MaaS360 Secure Browser</strong> helps organizations provide controlled access to corporate resources while significantly reducing exposure to web-based threats. Combined with the <strong>Mobile Threat Defense add-on</strong>, it provides full-device, full-network threat detection — covering device-level malware, suspicious app behaviour, and malicious network traffic in real time.';
+    } else {
+      secPara='For organizations looking to strengthen their mobile security posture, the <strong>Mobile Security Suite</strong> provides an integrated set of capabilities including Mobile Threat Defense, Secure Browser, and device compromise detection. These tools work together within the MaaS360 console to detect and remediate threats across devices, applications, and networks — without requiring additional management overhead or separate tooling.';
+    }
+  }
+
+  let extras=[];
+  if(regulated)
+    extras.push('As a '+industry+' organization, ensuring mobile devices are included in compliance and audit reporting is an important consideration. '+( (edition==='Essentials'||edition==='Advanced') ? 'MaaS360 '+upgrade+' includes enhanced reporting and policy enforcement capabilities that support this requirement.' : 'Your current edition includes the compliance reporting tools needed to address this — we can review whether they are fully configured as part of a renewal discussion.' ));
+
+  return {para, upgrade, extras, secPara};
+}
+
+// ── Subject lines ──────────────────────────────────────────────────────────
+function getSubject(type,company,daysLeft){
+  const co=company||'your organization';
+  if(type==='renewal'){
+    if(daysLeft!==null&&daysLeft<=90&&daysLeft>=0)
+      return 'MaaS360 renewal review \u2014 '+co;
+    return 'MaaS360 renewal planning \u2014 '+co;
+  }
+  if(type==='security') return 'MaaS360 security review \u2014 '+co;
+  if(type==='checkin')  return 'MaaS360 account review \u2014 '+co;
+  return 'MaaS360 expansion opportunity \u2014 '+co;
+}
+
+// ── HTML email builder (Outlook-optimised, 9-section flow) ─────────────────
+function buildHTML(params){
+  const {
+    firstName,company,industry,edition,
+    acv,startFmt,endFmt,licensed,active,prevPurch,
+    painBullets,valueBullets,rec,sellerName,sellerTitle,
+    sellerPhone,sellerEmail,emailType,nearRenew,daysLeft,overage
+  }=params;
+
+  const S='font-family:Arial,sans-serif;font-size:10pt;color:#1f2328;';
+  const H='font-family:Arial,sans-serif;font-size:10pt;font-weight:bold;color:#1f2328;margin:16px 0 6px 0;';
+  const P='font-family:Arial,sans-serif;font-size:10pt;color:#1f2328;margin:0 0 10px 0;line-height:1.6;';
+  const LI='font-family:Arial,sans-serif;font-size:10pt;color:#1f2328;margin:0 0 5px 0;line-height:1.6;';
+  const UL='margin:0 0 12px 0;padding-left:20px;';
+
+  let html='<div style="'+S+'">';
+
+  // ── 1. Renewal notice banner (near-renewal only) ──
+  if(nearRenew){
+    html+='<div style="background:#fff8e1;border-left:4px solid #f59e0b;padding:8px 12px;margin-bottom:16px;font-family:Arial,sans-serif;font-size:10pt;">';
+    html+='<strong>Renewal Notice:</strong> Your MaaS360 agreement renews on '+endFmt+' ('+daysLeft+' day'+(daysLeft!==1?'s':'')+' remaining).';
+    html+='</div>';
+  }
+
+  // ── 2. Greeting ──
+  html+='<p style="'+P+'">Hi '+firstName+',</p>';
+
+  // Opening line — consultative, not salesy
+  const openingMap={
+    renewal: 'I wanted to reach out as we approach your upcoming MaaS360 renewal. I have put together a brief summary of your current environment and a few options for your team to consider for the next contract term.',
+    security:'I wanted to share a few observations about your current MaaS360 deployment at '+company+' that may be worth discussing as part of your ongoing security planning.',
+    checkin: 'I hope this message finds you well. I wanted to check in on your MaaS360 environment at '+company+' and make sure everything is running smoothly ahead of your next renewal.',
+    upsell:  'I wanted to reach out with a few thoughts on your MaaS360 deployment at '+company+' and some options that may be worth considering as your environment continues to evolve.'
+  };
+  html+='<p style="'+P+'">'+(openingMap[emailType]||openingMap.upsell)+'</p>';
+
+  // ── 3. Current Environment ──
+  html+='<p style="'+H+'">Current Environment</p>';
+  html+='<ul style="'+UL+'">';
+  html+='<li style="'+LI+'"><strong>Edition:</strong> MaaS360 '+edition+'</li>';
+  // Contract term — start AND end, not "customer since"
+  if(startFmt&&endFmt){
+    html+='<li style="'+LI+'"><strong>Current Contract Term:</strong></li>';
+    html+='<ul style="margin:0 0 6px 0;padding-left:20px;">';
+    html+='<li style="'+LI+'">Contract Start Date: '+startFmt+'</li>';
+    html+='<li style="'+LI+'">Contract End Date: '+endFmt+'</li>';
+    html+='</ul>';
+  } else if(startFmt){
+    html+='<li style="'+LI+'"><strong>Contract Start Date:</strong> '+startFmt+'</li>';
+  } else if(endFmt){
+    html+='<li style="'+LI+'"><strong>Contract End Date:</strong> '+endFmt+'</li>';
+  }
+  // License / device counts
+  if(licensed&&active){
+    if(overage){
+      const diff=active-licensed;
+      html+='<li style="'+LI+'"><strong>Purchased Licenses:</strong> '+licensed.toLocaleString()+'</li>';
+      html+='<li style="'+LI+'"><strong>Active Enrolled Devices:</strong> '+active.toLocaleString()+' <span style="color:#b91c1c;font-weight:bold;">('+diff.toLocaleString()+' above licensed volume)</span></li>';
+    } else if(active<licensed){
+      const unused=licensed-active;
+      html+='<li style="'+LI+'"><strong>Purchased Licenses:</strong> '+licensed.toLocaleString()+'</li>';
+      html+='<li style="'+LI+'"><strong>Active Enrolled Devices:</strong> '+active.toLocaleString()+' ('+unused.toLocaleString()+' license'+(unused!==1?'s':'')+' currently unallocated)</li>';
+    } else {
+      html+='<li style="'+LI+'"><strong>Purchased Licenses:</strong> '+licensed.toLocaleString()+'</li>';
+      html+='<li style="'+LI+'"><strong>Active Enrolled Devices:</strong> '+active.toLocaleString()+'</li>';
+    }
+  } else if(licensed){
+    html+='<li style="'+LI+'"><strong>Purchased Licenses:</strong> '+licensed.toLocaleString()+'</li>';
+  } else if(active){
+    html+='<li style="'+LI+'"><strong>Active Enrolled Devices:</strong> '+active.toLocaleString()+'</li>';
+  }
+  if(acv)       html+='<li style="'+LI+'"><strong>Annual Investment:</strong> '+acv+'</li>';
+  if(prevPurch) html+='<li style="'+LI+'"><strong>Current Add-ons:</strong> '+prevPurch+'</li>';
+  html+='</ul>';
+
+  // ── 4. Value Realized ──
+  html+='<p style="'+H+'">Value Realized</p>';
+  html+='<ul style="'+UL+'">';
+  valueBullets.forEach(b=>{ html+='<li style="'+LI+'">'+b+'</li>'; });
+  html+='</ul>';
+
+  // ── 5. Renewal & Expansion Considerations (all email types benefit from this) ──
+  const showExpansion = painBullets.length>0 || overage || (licensed&&active&&active!==licensed);
+  if(showExpansion){
+    html+='<p style="'+H+'">Renewal &amp; Expansion Considerations</p>';
+    html+='<ul style="'+UL+'">';
+    // Always include a license/device context bullet
+    if(licensed&&active){
+      if(overage){
+        const diff=active-licensed;
+        html+='<li style="'+LI+'">Your active device enrollment has increased beyond the originally licensed volume by '+diff.toLocaleString()+' device'+(diff!==1?'s':'')+'. A license expansion should be reviewed for the upcoming contract term to ensure the agreement reflects the current deployment.</li>';
+      } else if(active<licensed){
+        const unused=licensed-active;
+        html+='<li style="'+LI+'">There are currently '+unused.toLocaleString()+' unallocated license'+(unused!==1?'s':'')+' in your agreement. This capacity could be used to extend managed device coverage to additional endpoints without additional cost in the current term.</li>';
+      } else {
+        html+='<li style="'+LI+'">Your licensed volume and active device enrollment are currently aligned. As part of renewal planning, it is worth considering anticipated device growth over the next contract period.</li>';
+      }
+    }
+    // Add pain-based bullets
+    painBullets.forEach(b=>{ html+='<li style="'+LI+'">'+b+'</li>'; });
+    // Edition expansion opportunity
+    if(edition!=='Deluxe'){
+      html+='<li style="'+LI+'">Based on your current MaaS360 '+edition+' deployment, <strong>'+rec.upgrade+'</strong> may provide additional capabilities to support continued growth, improved security posture, and operational efficiency in the next term.</li>';
+    }
+    html+='</ul>';
+  }
+
+  // ── 6. Security Enhancements to Consider (security-focused emails or when security pain present) ──
+  const hasSec = (painBullets.some(b=>b.match(/phish|threat|secur|malware|breach/i))) || emailType==='security';
+  if(hasSec && rec.secPara){
+    html+='<p style="'+H+'">Security Enhancements to Consider</p>';
+    html+='<p style="'+P+'">'+rec.secPara+'</p>';
+  }
+
+  // ── 7. Recommended Options ──
+  html+='<p style="'+H+'">Recommended Options</p>';
+  html+='<p style="'+P+'">'+rec.para+'</p>';
+  if(rec.extras.length>0){
+    html+='<ul style="'+UL+'">';
+    rec.extras.forEach(e=>{ html+='<li style="'+LI+'">'+e+'</li>'; });
+    html+='</ul>';
+  }
+
+  // ── 8. Recommended Next Steps — no "Call to Action" heading ──
+  html+='<p style="'+H+'">Recommended Next Steps</p>';
+  if(emailType==='renewal'){
+    html+='<p style="'+P+'">I have prepared the following for your team to review ahead of our next conversation:</p>';
+    html+='<ul style="'+UL+'">';
+    html+='<li style="'+LI+'">A renewal quote based on your current MaaS360 '+edition+' deployment and licensed volume</li>';
+    if(edition!=='Deluxe')
+      html+='<li style="'+LI+'">A comparison quote including <strong>'+rec.upgrade+'</strong>, with a summary of the additional capabilities included</li>';
+    if(overage)
+      html+='<li style="'+LI+'">A licensing review reflecting the current active device count and recommended adjustments for the upcoming term</li>';
+    html+='</ul>';
+    html+='<p style="'+P+'">This allows your team to evaluate the options side-by-side and determine the best fit for the upcoming contract term.</p>';
+    html+='<p style="'+P+'">Please let me know if you would like a revised quote, additional licensing scenarios, or a brief review call — I am happy to work through whichever format is most useful for your team.</p>';
+  } else if(emailType==='security'){
+    html+='<p style="'+P+'">I would welcome the opportunity to walk through these recommendations in the context of your specific environment. A brief 20-minute call would allow us to review your current configuration and discuss whether any of the security enhancements outlined above would be a good fit.</p>';
+    html+='<p style="'+P+'">Please feel free to reply directly, or let me know a time that works and I will send a calendar invitation.</p>';
+  } else if(emailType==='checkin'){
+    html+='<p style="'+P+'">I would like to propose a brief account review — typically 30 minutes — to walk through your current MaaS360 usage, address any open questions, and make sure your environment is fully optimized heading into the next renewal period.</p>';
+    html+='<p style="'+P+'">Please let me know if there is a convenient time, or feel free to share any questions in advance and I can address them before we connect.</p>';
+  } else {
+    html+='<p style="'+P+'">I would welcome a brief conversation to walk through these options in more detail. A 20-minute call would allow us to review the specifics of your environment and determine the most appropriate path forward.</p>';
+    html+='<p style="'+P+'">Please let me know if you have any questions in the meantime, or feel free to suggest a time that works for your schedule.</p>';
+  }
+
+  // ── 9. Closing / Signature ──
+  html+='<p style="'+P+'margin-top:18px;">Best regards,</p>';
+  html+='<p style="font-family:Arial,sans-serif;font-size:10pt;color:#1f2328;margin:0;line-height:1.8;">';
+  html+='<strong>'+(sellerName||'Your IBM Account Manager')+'</strong><br>';
+  if(sellerTitle) html+=sellerTitle+'<br>';
+  html+='IBM | MaaS360<br>';
+  if(sellerPhone) html+=sellerPhone+'<br>';
+  if(sellerEmail) html+='<a href="mailto:'+sellerEmail+'" style="color:#0f62fe;">'+sellerEmail+'</a>';
+  html+='</p>';
+  html+='</div>';
+  return html;
+}
+
+// ── Plain text builder (mirrors 9-section HTML flow) ──────────────────────
+function buildPlainText(params,subject){
+  const {
+    firstName,company,industry,edition,startFmt,endFmt,licensed,active,
+    acv,prevPurch,painBullets,valueBullets,rec,
+    sellerName,sellerTitle,sellerPhone,sellerEmail,
+    emailType,nearRenew,daysLeft,overage
+  }=params;
+
+  const strip=s=>s.replace(/<[^>]+>/g,'');
+  let t='Subject: '+subject+'\n\n';
+  if(nearRenew) t+='[ Renewal Notice: '+endFmt+' — '+daysLeft+' day'+(daysLeft!==1?'s':'')+' remaining ]\n\n';
+  t+='Hi '+firstName+',\n\n';
+
+  const openingMap={
+    renewal:'I wanted to reach out as we approach your upcoming MaaS360 renewal. I have put together a brief summary of your current environment and a few options for your team to consider for the next contract term.',
+    security:'I wanted to share a few observations about your current MaaS360 deployment at '+company+' that may be worth discussing as part of your ongoing security planning.',
+    checkin:'I hope this message finds you well. I wanted to check in on your MaaS360 environment at '+company+' and make sure everything is running smoothly ahead of your next renewal.',
+    upsell:'I wanted to reach out with a few thoughts on your MaaS360 deployment at '+company+' and some options that may be worth considering as your environment continues to evolve.'
+  };
+  t+=(openingMap[emailType]||openingMap.upsell)+'\n\n';
+
+  // Current Environment
+  t+='CURRENT ENVIRONMENT\n';
+  t+='  Edition: MaaS360 '+edition+'\n';
+  if(startFmt&&endFmt){
+    t+='  Current Contract Term:\n';
+    t+='    Contract Start Date: '+startFmt+'\n';
+    t+='    Contract End Date:   '+endFmt+'\n';
+  } else if(startFmt){ t+='  Contract Start Date: '+startFmt+'\n'; }
+  else if(endFmt){     t+='  Contract End Date:   '+endFmt+'\n'; }
+  if(licensed&&active){
+    if(overage){
+      const diff=active-licensed;
+      t+='  Purchased Licenses:      '+licensed.toLocaleString()+'\n';
+      t+='  Active Enrolled Devices: '+active.toLocaleString()+' ('+diff.toLocaleString()+' above licensed volume)\n';
+    } else if(active<licensed){
+      const unused=licensed-active;
+      t+='  Purchased Licenses:      '+licensed.toLocaleString()+'\n';
+      t+='  Active Enrolled Devices: '+active.toLocaleString()+' ('+unused.toLocaleString()+' currently unallocated)\n';
+    } else {
+      t+='  Purchased Licenses:      '+licensed.toLocaleString()+'\n';
+      t+='  Active Enrolled Devices: '+active.toLocaleString()+'\n';
+    }
+  } else if(licensed){ t+='  Purchased Licenses:      '+licensed.toLocaleString()+'\n'; }
+  else if(active){     t+='  Active Enrolled Devices: '+active.toLocaleString()+'\n'; }
+  if(acv)       t+='  Annual Investment: '+acv+'\n';
+  if(prevPurch) t+='  Current Add-ons:   '+prevPurch+'\n';
+  t+='\n';
+
+  // Value Realized
+  t+='VALUE REALIZED\n';
+  valueBullets.forEach(b=>{ t+='  \u2022  '+b+'\n'; });
+  t+='\n';
+
+  // Renewal & Expansion Considerations
+  const showExpansion=painBullets.length>0||overage||(licensed&&active&&active!==licensed);
+  if(showExpansion){
+    t+='RENEWAL & EXPANSION CONSIDERATIONS\n';
+    if(licensed&&active){
+      if(overage){
+        const diff=active-licensed;
+        t+='  \u2022  Your active device enrollment has increased beyond the licensed volume by '+diff.toLocaleString()+' device'+(diff!==1?'s':'')+'. A license expansion should be reviewed for the upcoming term.\n';
+      } else if(active<licensed){
+        const unused=licensed-active;
+        t+='  \u2022  There are '+unused.toLocaleString()+' unallocated license'+(unused!==1?'s':'')+' currently available. This capacity could be used to extend managed device coverage without additional cost.\n';
+      } else {
+        t+='  \u2022  Licensed volume and active enrollment are currently aligned. Consider anticipated device growth when planning the next contract term.\n';
+      }
+    }
+    painBullets.forEach(b=>{ t+='  \u2022  '+b+'\n'; });
+    if(edition!=='Deluxe') t+='  \u2022  Based on your current '+edition+' deployment, '+rec.upgrade+' may provide additional capabilities to support continued growth and improved security posture.\n';
+    t+='\n';
+  }
+
+  // Security Enhancements (if applicable)
+  const hasSec=painBullets.some(b=>b.match(/phish|threat|secur|malware/i))||emailType==='security';
+  if(hasSec&&rec.secPara){
+    t+='SECURITY ENHANCEMENTS TO CONSIDER\n';
+    t+='  '+strip(rec.secPara)+'\n\n';
+  }
+
+  // Recommended Options
+  t+='RECOMMENDED OPTIONS\n';
+  t+='  '+strip(rec.para)+'\n';
+  if(rec.extras.length>0){ rec.extras.forEach(e=>{ t+='  \u2022  '+e+'\n'; }); }
+  t+='\n';
+
+  // Recommended Next Steps
+  t+='RECOMMENDED NEXT STEPS\n';
+  if(emailType==='renewal'){
+    t+='  I have prepared the following for your team to review:\n';
+    t+='  \u2022  A renewal quote based on your current MaaS360 '+edition+' deployment\n';
+    if(edition!=='Deluxe') t+='  \u2022  A comparison quote including '+rec.upgrade+', with a summary of the additional capabilities included\n';
+    if(overage) t+='  \u2022  A licensing review reflecting the current active device count\n';
+    t+='\n  This allows your team to evaluate options side-by-side ahead of renewal.\n\n';
+    t+='  Please let me know if you would like a revised quote, additional licensing scenarios, or a brief review call.\n';
+  } else if(emailType==='security'){
+    t+='  I would welcome a brief 20-minute call to walk through these recommendations in the context of your specific environment.\n';
+    t+='  Please feel free to reply directly or suggest a time that works.\n';
+  } else if(emailType==='checkin'){
+    t+='  I would like to propose a 30-minute account review to walk through current usage, address any open questions, and make sure your environment is fully optimized.\n';
+    t+='  Please let me know if there is a convenient time, or share any questions in advance.\n';
+  } else {
+    t+='  I would welcome a brief 20-minute conversation to walk through these options in more detail.\n';
+    t+='  Please let me know if you have any questions or would like to suggest a time.\n';
+  }
+  t+='\n';
+
+  t+='Best regards,\n';
+  t+=(sellerName||'Your IBM Account Manager')+'\n';
+  if(sellerTitle) t+=sellerTitle+'\n';
+  t+='IBM | MaaS360\n';
+  if(sellerPhone) t+=sellerPhone+'\n';
+  if(sellerEmail) t+=sellerEmail+'\n';
+  return t;
+}
+
+// ── MAIN GENERATE ──────────────────────────────────────────────────────────
+function generate(){
+  const firstName  = g('firstName');
+  const lastName   = g('lastName');
+  const custTitle  = g('custTitle');
+  const company    = g('company');
+  const industry   = getIndustry();
+  const edition    = g('edition');
+  const acv        = g('acv');
+  const startDate  = g('startDate');
+  const endDate    = g('endDate');
+  const licensed   = n('licensedCount');
+  const active     = n('activeCount');
+  const prevPurch  = g('prevPurch');
+  const painRaw    = g('pain');
+  const sellerName = g('sellerName');
+  const sellerTitle= g('sellerTitle');
+  const sellerPhone= g('sellerPhone');
+  const sellerEmail= g('sellerEmail');
+
+  if(!firstName){alert('Please enter the customer\'s first name.');return;}
+  if(!company)  {alert('Please enter the company name.');return;}
+  if(!edition)  {alert('Please select the current MaaS360 edition.');return;}
+
+  const daysLeft  = daysUntil(endDate);
+  const nearRenew = daysLeft!==null&&daysLeft<=90&&daysLeft>=0;
+  const overage   = !!(licensed&&active&&active>licensed);
+  const startFmt  = fmtDate(startDate);
+  const endFmt    = fmtDate(endDate);
+  const subject   = getSubject(emailType,company,daysLeft);
+
+  const painBullets  = rewritePain(painRaw,licensed,active);
+  const valueBullets = getValueBullets(edition);
+  const rec          = getRecommendation(edition,painRaw,industry,licensed,active);
+
+  const params={
+    firstName,lastName,custTitle,company,industry,edition,acv,
+    startFmt,endFmt,licensed,active,prevPurch,
+    painBullets,valueBullets,rec,
+    sellerName,sellerTitle,sellerPhone,sellerEmail,
+    emailType,nearRenew,daysLeft,overage
+  };
+
+  document.getElementById('subjectOut').textContent = subject;
+  document.getElementById('emailPreview').innerHTML  = buildHTML(params);
+  document.getElementById('rawText').value           = buildPlainText(params,subject);
+
+  document.getElementById('renewalAlert').className = 'alert-banner'+(nearRenew?' show':'');
+  document.getElementById('overageAlert').className  = 'alert-banner'+(overage?' show':'');
+
+  const out=document.getElementById('emailOutput');
+  out.classList.add('visible');
+  out.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── Copy helpers ───────────────────────────────────────────────────────────
+function copyHTML(){
+  const subject='Subject: '+document.getElementById('subjectOut').textContent;
+  const body=document.getElementById('emailPreview').innerHTML;
+  // Write both plain and HTML to clipboard
+  const item=new ClipboardItem({
+    'text/html':new Blob(['<p>'+subject+'</p><br>'+body],{type:'text/html'}),
+    'text/plain':new Blob([document.getElementById('rawText').value],{type:'text/plain'})
+  });
+  navigator.clipboard.write([item]).then(()=>{
+    const btn=event.target;
+    btn.textContent='\u2713 Copied!';
+    setTimeout(()=>{btn.textContent='Copy for Outlook';},2500);
+  }).catch(()=>{ copyRaw(); });
+}
+
+function copyRaw(){
+  const text=document.getElementById('rawText').value;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.querySelector('[onclick="copyRaw()"]');
+    if(btn){btn.textContent='\u2713 Copied!';setTimeout(()=>{btn.textContent='Copy Plain Text';},2500);}
+  });
+}
+
+function openOutlook(){
+  const subject=encodeURIComponent(document.getElementById('subjectOut').textContent);
+  const body=encodeURIComponent(document.getElementById('rawText').value);
+  window.location.href='mailto:?subject='+subject+'&body='+body;
+}
+</script>
+</body>
+</html>
