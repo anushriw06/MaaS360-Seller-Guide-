@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaaS360 Seller Hub - Interactive</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.65;background:#f4f5f7;color:#1f2328}
+.topbar{background:#0f1923;border-bottom:3px solid #0f62fe;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-brand{color:#fff;font-size:15px;font-weight:700}
+.topbar-brand span{color:#74b1ff}
+.topbar-tag{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#c9d1d9;font-size:11px;padding:3px 10px;border-radius:20px}
+.shell{display:flex;min-height:calc(100vh - 52px)}
+.sidebar{width:210px;flex-shrink:0;background:#0f1923;padding:16px 0 48px;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto}
+.sidebar-section{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#57606a;padding:14px 18px 5px}
+.sidebar a{display:block;padding:9px 18px;color:#c9d1d9;font-size:13px;cursor:pointer;border-left:3px solid transparent;text-decoration:none}
+.sidebar a:hover{background:rgba(255,255,255,0.06);color:#fff}
+.sidebar a.active{border-left-color:#0f62fe;background:rgba(15,98,254,0.12);color:#74b1ff;font-weight:700}
+.content{flex:1;min-width:0;overflow-y:auto}
+.page{display:none;padding:28px 28px 80px;max-width:900px;margin:0 auto}
+.page.active{display:block}
+h1{font-size:22px;font-weight:700;margin-bottom:6px}
+h2{font-size:16px;font-weight:700;margin:28px 0 12px}
+h3{font-size:13px;font-weight:700;margin-bottom:7px;color:#57606a;text-transform:uppercase;letter-spacing:.06em}
+p{font-size:13px;margin-bottom:10px}
+.subtitle{color:#57606a;font-size:13px;margin-bottom:22px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:18px 20px;margin-bottom:14px}
+.card-title{font-size:12px;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e5e7eb}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:11px;font-weight:700;color:#57606a;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.req{color:#c2410c;margin-left:2px}
+input[type=text],input[type=tel],input[type=date],input[type=number],select,textarea{width:100%;padding:9px 12px;border:1px solid #d0d7de;border-radius:6px;font-size:13px;font-family:inherit;color:#1f2328;background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid #0f62fe;border-color:transparent}
+textarea{resize:vertical;min-height:68px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.btn{display:inline-block;padding:10px 22px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#0f62fe;color:#fff;font-family:inherit}
+.btn:hover{background:#0353e9}
+.email-output{display:none;margin-top:20px}
+.email-output.visible{display:block}
+.email-card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}
+.email-subj{background:#0f1923;color:#fff;padding:12px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.copy-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:11px;padding:4px 10px;border-radius:4px;cursor:pointer}
+.copy-btn:hover{background:rgba(255,255,255,0.2)}
+.email-body{padding:22px 24px;font-family:Arial,sans-serif;font-size:10pt;line-height:1.7;color:#1f2328}
+.email-body p{margin:0 0 10px;font-family:Arial,sans-serif;font-size:10pt}
+.email-body .eh{font-family:Arial,sans-serif;font-size:10pt;font-weight:bold;margin:14px 0 4px}
+.email-body ul{margin:0 0 10px;padding-left:18px}
+.email-body ul li{font-family:Arial,sans-serif;font-size:10pt;margin-bottom:2px}
+.ph{background:#fff7ed;color:#c2410c;padding:1px 5px;border-radius:3px;font-weight:700;font-size:12px}
+.email-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.email-tabs button{padding:7px 14px;border:1px solid #d0d7de;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#57606a}
+.email-tabs button:hover{border-color:#0f62fe;color:#0f62fe}
+.email-tabs button.active{background:#0f62fe;color:#fff;border-color:#0f62fe}
+.info-box{background:#eef4ff;border:1px solid #c0d4f7;border-radius:6px;padding:12px 16px;font-size:13px;margin-bottom:16px}
+.helper-text{font-size:11px;color:#57606a;margin-top:4px}
+.other-wrap{display:none;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">IBM Security <span>MaaS360</span> Seller Hub</div>
+  <div class="topbar-tag">S&amp;A Email Generator</div>
+</div>
+
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sidebar-section">Tools</div>
+    <a href="#" class="active" onclick="showPage(event,'email')">Email Generator</a>
+    <a href="#" onclick="showPage(event,'help')">How to Use</a>
+  </nav>
+
+  <main class="content">
+
+    <!-- EMAIL PAGE -->
+    <div id="page-email" class="page active">
+      <h1>Personalized Email Generator</h1>
+      <p class="subtitle">Fill in account details below. Required fields are marked <span class="req">*</span>. Any blank optional field becomes a <span class="ph">[PLACEHOLDER]</span> for you to complete before sending.</p>
+
+      <!-- CUSTOMER CONTACT -->
+      <div class="card">
+        <div class="card-title">Customer Contact</div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group">
+            <label class="form-label">First Name <span class="req">*</span></label>
+            <input type="text" id="firstName" placeholder="e.g. Sarah">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" id="lastName" placeholder="e.g. Johnson">
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input type="text" id="contactTitle" placeholder="e.g. Director of IT Security">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Company Name <span class="req">*</span></label>
+            <input type="text" id="company" placeholder="e.g. Acme Healthcare">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Industry <span class="req">*</span></label>
+            <select id="industry" onchange="toggleOther('industry',this.value,'Other')">
+              <option value="">Select...</option>
+              <option>Healthcare</option>
+              <option>Financial Services</option>
+              <option>Government / Public Sector</option>
+              <option>Education</option>
+              <option>Retail</option>
+              <option>Manufacturing</option>
+              <option>Transportation &amp; Logistics</option>
+              <option>Technology</option>
+              <option>Insurance</option>
+              <option>Energy &amp; Utilities</option>
+              <option>Wholesale &amp; Distribution</option>
+              <option>Other</option>
+            </select>
+            <div class="other-wrap" id="industryOtherWrap">
+              <label class="form-label" style="margin-top:8px">Custom Industry <span class="req">*</span></label>
+              <input type="text" id="industryOther" placeholder="e.g. Aerospace, Hospitality, Utilities">
+            </div>
+          </div>
+          <div class="form-group"><!-- spacer --></div>
+        </div>
+      </div>
+
+      <!-- ACCOUNT & CONTRACT DETAILS -->
+      <div class="card">
+        <div class="card-title">Account &amp; Contract Details</div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group">
+            <label class="form-label">Current MaaS360 Edition</label>
+            <select id="edition">
+              <option value="">Select...</option>
+              <option>MaaS360 Essentials</option>
+              <option>MaaS360 Advanced</option>
+              <option>MaaS360 Premier</option>
+              <option>MaaS360 Deluxe</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Annual Contract Value (ACV)</label>
+            <input type="text" id="acv" placeholder="e.g. $25,000">
+            <div class="helper-text">Current annual contract value of the MaaS360 agreement.</div>
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group">
+            <label class="form-label">Purchased License Count</label>
+            <input type="number" id="licensedDevices" placeholder="e.g. 1200" min="1" max="1000000">
+            <div class="helper-text">Total licenses purchased under the current contract.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Active Enrolled Device Count</label>
+            <input type="number" id="enrolledDevices" placeholder="e.g. 1480" min="1" max="1000000">
+            <div class="helper-text">Actual devices currently enrolled in MaaS360.</div>
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group">
+            <label class="form-label">Contract Start Date</label>
+            <input type="date" id="startDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contract End / Renewal Date</label>
+            <input type="date" id="endDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Previous Purchases / Add-ons</label>
+          <textarea id="addons" placeholder="e.g. Mobile Threat Defense, Productivity Suite, Watson Advisor, Identity Components"></textarea>
+          <div class="helper-text">List any add-ons or modules purchased in addition to the base edition.</div>
+        </div>
+      </div>
+
+      <!-- BUSINESS CONTEXT -->
+      <div class="card">
+        <div class="card-title">Business Context</div>
+        <div class="form-group">
+          <label class="form-label">Business Context &amp; Pain Points</label>
+          <textarea id="pain" placeholder="e.g. Failed HIPAA audit, device count growing beyond licensed volume, CISO pushing Zero Trust initiative, remote workforce expansion..."></textarea>
+          <div class="helper-text">Seller notes — these will be rewritten into professional language and never copied verbatim into the email.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your Notes on Customer Situation</label>
+          <textarea id="notes" placeholder="e.g. Customer expressed concern about mobile phishing incidents last quarter. Renewal conversation tentatively scheduled for Q3..."></textarea>
+          <div class="helper-text">Additional internal context. Used to inform recommendation tone; not included directly in output.</div>
+        </div>
+      </div>
+
+      <!-- SELLER INFORMATION -->
+      <div class="card">
+        <div class="card-title">Seller Information</div>
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="form-group">
+            <label class="form-label">Your Name <span class="req">*</span></label>
+            <input type="text" id="sellerName" placeholder="e.g. Alex Rivera">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Your Title</label>
+            <input type="text" id="sellerTitle" placeholder="e.g. Client Executive, IBM Security">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Your Phone</label>
+            <input type="tel" id="sellerPhone" placeholder="e.g. +1 (312) 555-0100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Your Email</label>
+            <input type="text" id="sellerEmail" placeholder="alex.rivera@ibm.com">
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:10px;margin-top:6px">Select Email Type</h3>
+      <div class="email-tabs">
+        <button class="active" onclick="setEmailType(event,'upsell')">Upsell / Upgrade</button>
+        <button onclick="setEmailType(event,'renewal')">Renewal</button>
+        <button onclick="setEmailType(event,'security')">Security Risk</button>
+        <button onclick="setEmailType(event,'checkin')">Check-In / QBR</button>
+        <button onclick="setEmailType(event,'combined')">Recommended Options</button>
+      </div>
+
+      <button class="btn" onclick="generateEmail()" style="margin-bottom:20px">Generate Personalized Email</button>
+
+      <div class="email-output" id="emailOutput">
+        <div class="email-card">
+          <div class="email-subj">
+            <span id="emailSubject">Subject: [SUBJECT]</span>
+            <button class="copy-btn" onclick="copyEmail()">Copy Email</button>
+          </div>
+          <div class="email-body" id="emailBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HELP PAGE -->
+    <div id="page-help" class="page">
+      <h1>How to Use This Tool</h1>
+      <p class="subtitle">This tool generates personalized MaaS360 renewal and upsell emails using real account data.</p>
+
+      <div class="card">
+        <div class="card-title">Step 1 — Fill in Account Details</div>
+        <p>Complete as many fields as possible. Required fields (<span class="req">*</span>) must be filled. Optional fields that are left blank appear as <span class="ph">[PLACEHOLDER]</span> in the output for you to complete before sending.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Step 2 — Select Email Type</div>
+        <ul style="padding-left:20px;margin-top:4px;font-size:13px;line-height:2">
+          <li><strong>Upsell / Upgrade</strong> — Edition upgrade recommendation based on device scale and ACV</li>
+          <li><strong>Renewal</strong> — Renewal review with license true-up and upgrade options</li>
+          <li><strong>Security Risk</strong> — Mobile security posture review positioning Secure Browser and MTD</li>
+          <li><strong>Check-In / QBR</strong> — Proactive touchpoint ahead of renewal</li>
+          <li><strong>Recommended Options</strong> — Combined renewal + upgrade view with side-by-side options</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Step 3 — Generate &amp; Copy</div>
+        <p>Click <strong>Generate Personalized Email</strong>. Review the output, then click <strong>Copy Email</strong> to paste into Outlook or Gmail. Business context and seller notes are never copied verbatim — they inform the recommendation language only.</p>
+      </div>
+
+      <div class="info-box">
+        <strong>Pro Tip:</strong> Save this file to your desktop and open it in Chrome or Edge. It works fully offline — no data is sent anywhere.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+let currentEmailType = "upsell";
+
+function showPage(e, pageId) {
+  e.preventDefault();
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".sidebar a").forEach(a => a.classList.remove("active"));
+  document.getElementById("page-" + pageId).classList.add("active");
+  e.target.classList.add("active");
+}
+
+function setEmailType(e, type) {
+  currentEmailType = type;
+  document.querySelectorAll(".email-tabs button").forEach(b => b.classList.remove("active"));
+  e.target.classList.add("active");
+}
+
+function toggleOther(prefix, val, triggerVal) {
+  const wrap = document.getElementById(prefix + "OtherWrap");
+  if (wrap) wrap.style.display = val === triggerVal ? "block" : "none";
+}
+
+function v(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : "";
+}
+
+function ph(label) {
+  return `<span class="ph">[${label}]</span>`;
+}
+
+function fill(val, label) {
+  return val || ph(label);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
+function formatACV(raw) {
+  const num = parseFloat(raw.replace(/[^0-9.]/g, ""));
+  if (isNaN(num)) return null;
+  return "$" + num.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function fmtNum(n) {
+  return n > 0 ? n.toLocaleString() : null;
+}
+
+// ─── Recommendation Engine ───────────────────────────────────────────────────
+function buildRec(licensed, enrolled, acvNum, edition, industry, addons, pain, co) {
+
+  const gap         = enrolled - licensed;
+  const deviceCount = enrolled > 0 ? enrolled : licensed;
+
+  // License true-up note (over-enrollment only — never surface under-enrollment)
+  let licenseNote = "";
+  if (licensed > 0 && enrolled > 0 && gap > 0) {
+    licenseNote = `Active device enrollment (${enrolled.toLocaleString()}) currently exceeds the licensed count (${licensed.toLocaleString()}). A license review ahead of renewal is recommended to ensure full coverage.`;
+  }
+
+  // Scale tier — used to weight rationale strength
+  const isEnterprise = deviceCount >= 20000 || acvNum >= 50000;
+  const isLarge      = (deviceCount >= 5000  || acvNum >= 10000) && !isEnterprise;
+
+  // Compliance phrase — safe against "regulatory compliance compliance" duplication
+  const complianceLabel  = industry.includes("Healthcare")                                      ? "HIPAA"
+    : (industry.includes("Government") || industry.includes("Public Sector"))                  ? "FedRAMP / FISMA"
+    : (industry.includes("Financial Services") || industry.includes("Insurance"))              ? "SOC 2 / PCI-DSS"
+    : industry.includes("Education")                                                            ? "FERPA"
+    : "regulatory";
+  const compliancePhrase = complianceLabel === "regulatory" ? "regulatory compliance" : `${complianceLabel} compliance`;
+
+  // ── Add-on detection ──────────────────────────────────────────────────────
+  const a = (addons || "").toLowerCase();
+  const hasMTD          = /mobile threat defense|mtd\b/.test(a);
+  const hasBrowser      = /secure browser/.test(a);
+  const hasWatson       = /watson/.test(a);
+  const hasIdentity     = /identity|iam\b|sso\b/.test(a);
+  const hasProductivity = /productivity suite|productivity/.test(a);
+  const hasContainer    = /container|app connect/.test(a);
+  const hasDLP          = /dlp|data loss/.test(a);
+  const hasDocs         = /docs@work|document/.test(a);
+
+  // Collect human-readable names of detected add-ons for use in narrative
+  const ownedAddons = [
+    hasMTD          && "Mobile Threat Defense",
+    hasBrowser      && "Secure Browser",
+    hasWatson       && "Watson Advisor",
+    hasIdentity     && "Identity Management",
+    hasProductivity && "Productivity Suite",
+    hasContainer    && "App Connect / Containerization",
+    hasDLP          && "Data Loss Prevention",
+    hasDocs         && "Docs@Work"
+  ].filter(Boolean);
+  const hasAnyAddon = ownedAddons.length > 0;
+
+  // ── Next edition — one logical step only ─────────────────────────────────
+  const nextEdition = edition.includes("Essentials") ? "MaaS360 Advanced"
+    : edition.includes("Advanced") ? "MaaS360 Premier"
+    : edition.includes("Premier")  ? "MaaS360 Deluxe"
+    : null;
+
+  const ne   = nextEdition || "the next MaaS360 edition";
+  const neUp = nextEdition || "The next MaaS360 edition";
+
+  // ── License Tier Optimization ─────────────────────────────────────────────
+  // Checks whether separately purchased add-ons are already bundled into a
+  // higher edition. When true, the optimization path may leapfrog one step.
+  //
+  // Bundling map (what each tier includes natively):
+  //   Advanced  → Secure Browser, basic Identity
+  //   Premier   → MTD, Watson AI Analytics, advanced Identity
+  //   Deluxe    → MTD, Watson, DLP, Containerization, full productivity suite
+  let tierOptimizationTarget  = null;  // edition to recommend for consolidation
+  let tierOptimizationAddons  = [];    // add-ons that would be consolidated
+  let tierOptimizationNote    = "";    // paragraph shown in Recommended Solution
+
+  if (edition.includes("Essentials")) {
+    const bundledInAdvanced = [hasBrowser && "Secure Browser", hasIdentity && "Identity Management"].filter(Boolean);
+    const bundledInPremier  = [hasMTD && "Mobile Threat Defense", hasWatson && "Watson Advisor",
+                               hasBrowser && "Secure Browser", hasIdentity && "Identity Management"].filter(Boolean);
+    const bundledInDeluxe   = [hasMTD && "Mobile Threat Defense", hasWatson && "Watson Advisor",
+                               hasBrowser && "Secure Browser", hasIdentity && "Identity Management",
+                               hasDLP && "Data Loss Prevention", hasProductivity && "Productivity Suite",
+                               hasContainer && "App Connect / Containerization"].filter(Boolean);
+
+    if (bundledInDeluxe.length >= 3) {
+      tierOptimizationTarget = "MaaS360 Deluxe";
+      tierOptimizationAddons = bundledInDeluxe;
+    } else if (bundledInPremier.length >= 2) {
+      tierOptimizationTarget = "MaaS360 Premier";
+      tierOptimizationAddons = bundledInPremier;
+    } else if (bundledInAdvanced.length >= 1) {
+      tierOptimizationTarget = "MaaS360 Advanced";
+      tierOptimizationAddons = bundledInAdvanced;
+    }
+  } else if (edition.includes("Advanced")) {
+    const bundledInPremier = [hasMTD && "Mobile Threat Defense", hasWatson && "Watson Advisor"].filter(Boolean);
+    const bundledInDeluxe  = [hasMTD && "Mobile Threat Defense", hasWatson && "Watson Advisor",
+                              hasDLP && "Data Loss Prevention", hasProductivity && "Productivity Suite",
+                              hasContainer && "App Connect / Containerization"].filter(Boolean);
+
+    if (bundledInDeluxe.length >= 3) {
+      tierOptimizationTarget = "MaaS360 Deluxe";
+      tierOptimizationAddons = bundledInDeluxe;
+    } else if (bundledInPremier.length >= 1) {
+      tierOptimizationTarget = "MaaS360 Premier";
+      tierOptimizationAddons = bundledInPremier;
+    }
+  } else if (edition.includes("Premier")) {
+    const bundledInDeluxe = [hasDLP && "Data Loss Prevention", hasProductivity && "Productivity Suite",
+                             hasContainer && "App Connect / Containerization"].filter(Boolean);
+    if (bundledInDeluxe.length >= 1) {
+      tierOptimizationTarget = "MaaS360 Deluxe";
+      tierOptimizationAddons = bundledInDeluxe;
+    }
+  }
+
+  if (tierOptimizationTarget && tierOptimizationAddons.length > 0) {
+    const addonList = tierOptimizationAddons.length === 1
+      ? tierOptimizationAddons[0]
+      : tierOptimizationAddons.slice(0, -1).join(", ") + " and " + tierOptimizationAddons.slice(-1)[0];
+
+    const alreadyNextStep = tierOptimizationTarget === nextEdition;
+    const introPhrase = alreadyNextStep
+      ? `As part of this renewal, it is also worth noting a licensing optimization opportunity.`
+      : `There is also a licensing consolidation opportunity worth reviewing separately.`;
+
+    tierOptimizationNote =
+      `${introPhrase} ${co} currently licenses ${edition} and separately purchases ${addonList}. ` +
+      `${tierOptimizationTarget} includes ${addonList} as part of the core platform, which means upgrading to ${tierOptimizationTarget} could ` +
+      `consolidate these separately licensed items while also unlocking additional capabilities beyond what is available today through ${edition} ` +
+      `plus separate add-ons. Because the organization has already demonstrated a need for ${tierOptimizationAddons[0]}, ` +
+      `${tierOptimizationTarget} may represent better overall value than maintaining the current add-on licensing structure.`;
+  }
+
+  // ── Unified recommendation narrative ─────────────────────────────────────
+  // A single because/therefore paragraph — always names what the client owns,
+  // always explains the specific relationship to the proposed upgrade.
+  // Never generic. Falls back gracefully when no add-ons are present.
+  let narrative = "";
+
+  if (hasAnyAddon) {
+    const addonSummary = ownedAddons.length === 1
+      ? ownedAddons[0]
+      : ownedAddons.slice(0, -1).join(", ") + " and " + ownedAddons.slice(-1)[0];
+
+    // Build the "because/therefore" core based on the strongest add-on signal
+    if (edition.includes("Essentials")) {
+      if (hasMTD) {
+        narrative = `${co} currently licenses ${edition} and has also purchased ${addonSummary}. ` +
+          `Because the organization is already investing in mobile threat protection, ${ne} is a natural extension — ` +
+          `it builds directly on that investment by adding centralized threat analytics, AI-driven risk scoring, and identity-based access policies that work alongside the existing MTD deployment. ` +
+          `This recommendation is based on capabilities the organization has already prioritized, not a generic tier upgrade.`;
+      } else if (hasWatson) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `Because Watson Advisor is already surfacing insights across the deployment, ${ne} provides the policy automation and access controls needed to act on those insights — ` +
+          `creating a more complete management and security workflow than Essentials plus a standalone analytics add-on can provide today.`;
+      } else if (hasIdentity) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `Because identity management is already part of the environment, ${ne} extends that investment with tighter integration between device posture and user access policies — ` +
+          `reducing the gap between MDM enforcement and IAM controls that exists in the current configuration.`;
+      } else if (hasProductivity) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `${ne} complements the existing Productivity Suite by adding native secure mobile email and calendar access, ` +
+          `which may allow the organization to consolidate functionality and reduce reliance on the separately licensed productivity add-on.`;
+      } else if (hasBrowser) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `Because Secure Browser is already deployed, ${ne} extends that web security investment with identity-based access controls and ${compliancePhrase} automation — ` +
+          `providing a more complete security posture than browser controls alone.`;
+      } else if (hasDLP) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `Because the organization has already prioritized data protection, ${ne} adds the identity management and policy controls needed to govern how that data is accessed — ` +
+          `complementing the existing DLP investment with visibility into who is accessing what, and from which devices.`;
+      } else {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `Based on the add-ons already in place, ${ne} may provide a more integrated platform for the capabilities the organization is already using — ` +
+          `with additional security and management controls that build on the existing deployment.`;
+      }
+    } else if (edition.includes("Advanced")) {
+      if (hasMTD) {
+        narrative = `${co} currently licenses ${edition} and separately purchases ${addonSummary}. ` +
+          `${ne} includes Mobile Threat Defense natively as part of the core platform, which would consolidate the standalone MTD licensing while also enabling tighter integration with Watson AI Security Analytics. ` +
+          `Because the organization has already demonstrated a priority for mobile threat protection, ${ne} provides a more unified and cost-effective path to maintaining that capability.`;
+      } else if (hasWatson) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `${ne} is a direct extension of the existing Watson investment — it adds automated threat response and real-time risk scoring that acts on the intelligence Watson Advisor is already surfacing, ` +
+          `allowing the security team to move from insight to action without adding separate tooling.`;
+      } else if (hasIdentity) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `${ne} deepens the existing identity investment by adding AI-driven device posture scoring alongside user identity checks — ` +
+          `enabling more dynamic, risk-aware access decisions that the current Advanced plus Identity configuration cannot provide on its own.`;
+      } else if (hasBrowser) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `Because Secure Browser is already protecting users from web-based threats, ${ne} extends that security coverage by adding Mobile Threat Defense across apps and network-level threats — ` +
+          `giving the security team visibility beyond browser activity into the full device threat surface.`;
+      } else if (hasDLP) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `${ne} adds the AI-driven security analytics layer needed to identify which devices are putting protected data at risk before a policy violation occurs — ` +
+          `shifting the organization from reactive data loss response to proactive threat-informed risk management.`;
+      } else if (hasContainer) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `While containerization isolates corporate data effectively, ${ne} adds Mobile Threat Defense and AI risk scoring to monitor threats targeting users outside the container — ` +
+          `providing a more complete security posture across the full device, not just the managed container.`;
+      } else {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `${ne} builds directly on the capabilities already in place by adding Watson AI Security Analytics and integrated Mobile Threat Defense — ` +
+          `providing a more unified security and management platform than the current configuration.`;
+      }
+    } else if (edition.includes("Premier")) {
+      if (hasWatson) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `${ne} consolidates Watson's existing insights into a unified enterprise security platform — adding Zero Trust device posture enforcement and centralized ${compliancePhrase} reporting ` +
+          `that allows the organization to act on Watson's intelligence at scale rather than reviewing it in isolation.`;
+      } else if (hasMTD) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `${ne} adds the enterprise-grade threat orchestration framework needed to act on Mobile Threat Defense signals at scale — ` +
+          `moving from per-device detection to automated, policy-driven enforcement across the full fleet.`;
+      } else if (hasIdentity) {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `${ne} extends the existing identity controls with Zero Trust device posture requirements — ` +
+          `ensuring that both user identity and device health must be verified before access to corporate resources is granted.`;
+      } else {
+        narrative = `${co} currently licenses ${edition} with ${addonSummary}. ` +
+          `${ne} builds on the existing Premier deployment by adding enterprise-grade orchestration and Zero Trust enforcement — ` +
+          `capabilities that become increasingly valuable as the device environment and compliance requirements continue to grow.`;
+      }
+    }
+  }
+
+  // Fallback narrative when no add-ons are present — pain and scale driven
+  if (!narrative) {
+    if (pain) {
+      const lower = pain.toLowerCase();
+      if (/audit|compliance|hipaa|fedramp|pci|soc|ferpa/i.test(lower)) {
+        narrative = `With ${compliancePhrase} as a priority, ${ne} may help reduce the manual effort your team puts into demonstrating compliance through additional policy automation and audit-ready reporting.`;
+      } else if (/phish|threat|attack|breach|malware|ransomware/i.test(lower)) {
+        narrative = `Given the security concerns in your environment, ${ne} adds mobile threat detection and AI-driven risk scoring that would give your team earlier visibility into device-level threats.`;
+      } else if (/grow|expand|scale|more device|additional device/i.test(lower)) {
+        narrative = `As your device footprint grows, ${ne} provides the additional security and management capabilities to keep pace without increasing administrative overhead.`;
+      } else if (/remote|distributed|work from home|wfh/i.test(lower)) {
+        narrative = `With a distributed workforce, ${ne} strengthens endpoint security and access controls across devices that may not always be on the corporate network.`;
+      } else if (/email|calendar|productivity/i.test(lower)) {
+        narrative = `${neUp} includes secure mobile email and calendar access, which may address the productivity needs your team is looking to support.`;
+      } else {
+        narrative = `With renewal approaching, now may be a good time to review whether ${ne} could better support your current security and device management goals.`;
+      }
+    } else {
+      if (isEnterprise) {
+        narrative = `At ${deviceCount.toLocaleString()} managed devices, ${ne} may provide the security depth and ${compliancePhrase} automation that organizations at this scale typically require.`;
+      } else if (isLarge) {
+        narrative = `As device management complexity grows, ${ne} adds security controls and visibility that help IT teams stay ahead of risk without increasing manual workload.`;
+      } else {
+        narrative = `With renewal approaching, now may be a good time to review whether ${ne} could better support your current security and device management goals.`;
+      }
+    }
+  }
+
+  // ── Outcome-focused upgrade bullets (add-on-aware) ────────────────────────
+  let nextEditionBullets;
+  if (edition.includes("Essentials")) {
+    nextEditionBullets = hasMTD
+      ? [
+          "Centralized threat analytics that extend your existing Mobile Threat Defense investment",
+          "AI-driven risk scoring across the full device fleet",
+          "Stronger user access controls and identity-based security policies",
+          `Improved ${compliancePhrase} posture through automated policy controls`
+        ]
+      : hasIdentity
+      ? [
+          "Tighter integration between device trust and user identity policies",
+          "Secure mobile email and calendar access",
+          "Better visibility into device health, risk, and compliance trends",
+          `Improved ${compliancePhrase} posture through automated controls`
+        ]
+      : hasProductivity
+      ? [
+          "Native secure mobile email and calendar — reduces reliance on standalone productivity add-ons",
+          "Stronger user access controls and identity-based security policies",
+          `Improved ${compliancePhrase} posture through automated policy controls`,
+          "Better visibility into device health, risk, and compliance trends"
+        ]
+      : hasBrowser
+      ? [
+          "Identity-based access controls that complement your existing Secure Browser deployment",
+          "Automated compliance policy enforcement",
+          "Better visibility into device health, risk, and compliance trends",
+          "Scales efficiently as the device environment grows"
+        ]
+      : [
+          "Secure mobile email and calendar access",
+          "Stronger user access controls and identity-based security policies",
+          "Better visibility into device health, risk, and compliance trends",
+          `Improved ${compliancePhrase} posture through automated policy controls`
+        ];
+  } else if (edition.includes("Advanced")) {
+    nextEditionBullets = hasMTD
+      ? [
+          "Mobile Threat Defense included natively — consolidates standalone licensing into the platform",
+          "AI-driven risk visibility via Watson Security Analytics",
+          "Automated compliance controls to reduce manual audit effort",
+          "Faster policy violation identification and remediation"
+        ]
+      : hasWatson
+      ? [
+          "Automated threat response that acts on Watson's existing insights in real time",
+          "Real-time mobile threat detection across apps, networks, and devices",
+          "AI-driven risk scoring that extends Watson Advisor's current visibility",
+          "Automated compliance controls to reduce manual audit effort"
+        ]
+      : hasBrowser
+      ? [
+          "Mobile Threat Defense — extends browser security across apps and network-level threats",
+          "AI-driven risk visibility across the full device fleet",
+          "Automated compliance controls to reduce manual audit effort",
+          "Tighter SIEM and security operations integration"
+        ]
+      : hasDLP
+      ? [
+          "AI security analytics to identify at-risk devices before a data loss event occurs",
+          "Real-time mobile threat detection and response",
+          "Automated compliance controls to reduce manual audit effort",
+          "Tighter integration with security operations platforms"
+        ]
+      : [
+          "AI-driven risk visibility across the full device fleet",
+          "Real-time mobile threat detection and response",
+          "Automated compliance controls to reduce manual audit effort",
+          "Tighter integration with security operations and SIEM platforms"
+        ];
+  } else {
+    nextEditionBullets = hasWatson
+      ? [
+          "Enterprise threat orchestration that acts on Watson's existing insights at scale",
+          "Zero Trust enforcement at device and user level",
+          "Consolidated compliance reporting across IBM Security tools",
+          "Scalable policy orchestration for large, diverse device environments"
+        ]
+      : hasMTD
+      ? [
+          "Enterprise-grade orchestration that acts on existing Mobile Threat Defense signals at scale",
+          "Zero Trust policy enforcement at device and user level",
+          "Consolidated compliance reporting across IBM Security tools",
+          "Scalable policy orchestration for growing environments"
+        ]
+      : [
+          "Enterprise-grade threat intelligence across endpoints",
+          "Zero Trust enforcement at device and user level",
+          "Consolidated compliance reporting across IBM Security tools",
+          "Scalable policy orchestration for large, diverse device environments"
+        ];
+  }
+
+  return {
+    licenseNote, complianceLabel, compliancePhrase,
+    hasMTD, hasBrowser, hasWatson,
+    nextEdition, nextEditionBullets,
+    narrative, tierOptimizationNote, tierOptimizationTarget,
+    deviceCount, gap
+  };
+}
+
+// ─── Email Generator ─────────────────────────────────────────────────────────
+function generateEmail() {
+  // Collect fields
+  const firstName    = v("firstName");
+  const lastName     = v("lastName");
+  const contactTitle = v("contactTitle");
+  const company      = v("company");
+  const industryRaw  = v("industry");
+  const industryOther= v("industryOther");
+  const industry     = industryRaw === "Other" ? (industryOther || "Other") : industryRaw;
+  const edition      = v("edition");
+  const acvRaw       = v("acv");
+  const acvNum       = parseFloat(acvRaw.replace(/[^0-9.]/g, "")) || 0;
+  const licensedRaw  = v("licensedDevices");
+  const enrolledRaw  = v("enrolledDevices");
+  const licensed     = parseInt(licensedRaw, 10) || 0;
+  const enrolled     = parseInt(enrolledRaw, 10) || 0;
+  const startDate    = v("startDate");
+  const endDate      = v("endDate");
+  const addons       = v("addons");
+  const pain         = v("pain");
+  const sellerName   = v("sellerName");
+  const sellerTitle  = v("sellerTitle");
+  const sellerPhone  = v("sellerPhone");
+  const sellerEmail  = v("sellerEmail");
+
+  // Validate required fields
+  if (!firstName)   { alert("First Name is required."); return; }
+  if (!company)     { alert("Company Name is required."); return; }
+  if (!industry || industry === "Other" && !industryOther) {
+    alert("Please select or specify an Industry."); return;
+  }
+  if (!sellerName)  { alert("Your Name (Seller) is required."); return; }
+
+  // Validate numeric ranges
+  if (licensedRaw && (licensed < 1 || licensed > 1000000)) {
+    alert("Purchased License Count must be between 1 and 1,000,000."); return;
+  }
+  if (enrolledRaw && (enrolled < 1 || enrolled > 1000000)) {
+    alert("Active Enrolled Device Count must be between 1 and 1,000,000."); return;
+  }
+
+  // Display values
+  const displayName  = firstName + (lastName ? " " + lastName : "");
+  const displayCo    = company;
+  const displayInd   = industry;
+  const displayEd    = fill(edition, "MAAS360 EDITION");
+  const displayACV   = acvRaw ? (formatACV(acvRaw) || acvRaw) : ph("ACV");
+  const displayLic   = fmtNum(licensed)  || ph("PURCHASED LICENSE COUNT");
+  const displayEnr   = fmtNum(enrolled)  || ph("ENROLLED DEVICE COUNT");
+  const startFmt     = startDate ? formatDate(startDate) : ph("CONTRACT START DATE");
+  const endFmt       = endDate   ? formatDate(endDate)   : ph("CONTRACT END / RENEWAL DATE");
+
+  // Seller signature block
+  const sigLines = [
+    fill(sellerName, "YOUR NAME"),
+    sellerTitle  || "IBM | MaaS360",
+    sellerPhone  ? sellerPhone : null,
+    sellerEmail  ? sellerEmail : null
+  ].filter(Boolean).join("\n");
+
+  // ── helpers for HTML email building ─────────────────────────────────────────
+  const H  = (t) => `<p class="eh">${t}</p>`;
+  const P  = (t) => `<p>${t}</p>`;
+  const UL = (items) => `<ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
+  const SIG = `<p style="margin-top:16px">${sigLines.replace(/\n/g, "<br>")}</p>`;
+
+  // Run recommendation engine
+  const rec = buildRec(licensed, enrolled, acvNum, edition, industry, addons, pain, displayCo);
+  const { licenseNote, complianceLabel, compliancePhrase, hasMTD, nextEdition,
+          nextEditionBullets, narrative, tierOptimizationNote } = rec;
+  // nextEd: plain-text safe for mid-sentence use in templates (no HTML spans)
+  const nextEd = nextEdition || "[NEXT MAAS360 EDITION]";
+
+  // Current Environment — no ACV in customer-facing output
+  const envItems = [
+    `Organization: ${displayCo}`,
+    ...(contactTitle ? [`Contact: ${displayName}, ${contactTitle}`] : []),
+    `Edition: ${displayEd}`,
+    `Purchased Licenses: ${displayLic}`,
+    `Active Devices: ${displayEnr}`,
+    ...(addons ? [`Current Add-ons: ${addons}`] : []),
+    `Renewal Date: ${endFmt}`
+  ];
+
+  // Current Value Realized — 3 bullets max
+  const valueItems = [
+    "Centralized device visibility and control across iOS, Android, Windows, and macOS from a single management console",
+    "Automated policy enforcement ensuring every endpoint meets the security and compliance baseline",
+    "Streamlined app distribution and lifecycle management across all enrolled devices"
+  ];
+
+  // CTA — uses nextEd which is always plain text, never an HTML span
+  const cta = (emailContext) =>
+    `Would you be open to a brief 15-minute call to review your current deployment and explore whether ${nextEd} aligns with your ${emailContext} goals?`;
+
+  let subject = "";
+  let body = "";
+
+  // ── COMBINED ────────────────────────────────────────────────────────────────
+  if (currentEmailType === "combined") {
+    subject = `MaaS360 Renewal Review — ${displayCo}`;
+    body = P(`Hi ${displayName},`) +
+      P(`I wanted to reach out ahead of your ${endFmt} renewal with a quick summary of your current environment and a recommendation for the next term.`) +
+      H("Current Environment") + UL(envItems) +
+      H("Value Realized") + UL(valueItems) +
+      H("Recommended Next Steps") +
+      P(narrative) +
+      (licenseNote ? P(licenseNote) : "") +
+      H("Recommended Options") +
+      (tierOptimizationNote ? P(tierOptimizationNote) : "") +
+      P(`${nextEd} adds:`) + UL(nextEditionBullets) +
+      P(`I can provide a renewal quote at your current ${displayEd} edition and a comparison quote for ${nextEd} — your team can review both options side-by-side before the renewal date.`) +
+      P(cta("upcoming renewal")) +
+      SIG;
+
+  // ── UPSELL ──────────────────────────────────────────────────────────────────
+  } else if (currentEmailType === "upsell") {
+    subject = `MaaS360 Upgrade Consideration — ${displayCo}`;
+    body = P(`Hi ${displayName},`) +
+      P(`I wanted to follow up on your MaaS360 deployment and share a consideration that may be relevant as your environment continues to evolve.`) +
+      H("Current Environment") + UL(envItems) +
+      H("Value Realized") + UL(valueItems) +
+      H("Recommended Options") +
+      P(narrative) +
+      (tierOptimizationNote ? P(tierOptimizationNote) : "") +
+      P(`${nextEd} adds:`) + UL(nextEditionBullets) +
+      (licenseNote ? P(licenseNote) : "") +
+      P(cta("security and management")) +
+      SIG;
+
+  // ── RENEWAL ─────────────────────────────────────────────────────────────────
+  } else if (currentEmailType === "renewal") {
+    subject = `MaaS360 Renewal — ${displayCo}`;
+    body = P(`Hi ${displayName},`) +
+      P(`Your MaaS360 agreement is coming up for renewal on ${endFmt}. I wanted to connect ahead of that date to review your current setup and share a couple of options for the next term.`) +
+      H("Current Environment") + UL(envItems) +
+      H("Value Realized") + UL(valueItems) +
+      H("Recommended Next Steps") +
+      P(narrative) +
+      (licenseNote ? P(licenseNote) : "") +
+      H("Recommended Options") +
+      (tierOptimizationNote ? P(tierOptimizationNote) : "") +
+      P(`Two options for your review:`) +
+      UL([
+        `Option A — Renew at current ${displayEd}`,
+        `Option B — Upgrade to ${nextEd}, which adds: ${nextEditionBullets.slice(0,3).join("; ")}`
+      ]) +
+      P(cta("renewal")) +
+      SIG;
+
+  // ── SECURITY ────────────────────────────────────────────────────────────────
+  } else if (currentEmailType === "security") {
+    subject = `Mobile Security — ${displayCo}`;
+    body = P(`Hi ${displayName},`) +
+      P(`I wanted to share a security consideration that may be relevant to your ${displayInd} environment.`) +
+      H("Current Environment") + UL(envItems) +
+      H("Value Realized") + UL(valueItems) +
+      H("Security Enhancements to Consider") +
+      P(narrative) +
+      P(`One area worth reviewing is mobile phishing and web-based threat exposure. MaaS360 Secure Browser${!hasMTD ? " and Mobile Threat Defense" : ""} can be added to your current deployment without re-enrollment or reconfiguration.`) +
+      P("Additional capabilities include:") +
+      UL([
+        "Protection from phishing and malicious websites on managed devices",
+        "Detection of compromised, rooted, or tampered devices before they access corporate resources",
+        ...(!hasMTD ? ["Real-time mobile threat detection across apps, networks, and device-level vulnerabilities"] : []),
+        `Improved ${compliancePhrase} posture through continuous device health monitoring`
+      ]) +
+      H("Recommended Options") +
+      UL([
+        `Add MaaS360 Secure Browser${!hasMTD ? " and Mobile Threat Defense" : ""} to your current ${displayEd} edition`,
+        `Or upgrade to ${nextEd}, which includes these capabilities alongside Watson AI Security Analytics`
+      ]) +
+      P(cta("security")) +
+      SIG;
+
+  // ── CHECK-IN / QBR ──────────────────────────────────────────────────────────
+  } else if (currentEmailType === "checkin") {
+    subject = `Checking In — ${displayCo} MaaS360`;
+    body = P(`Hi ${displayName},`) +
+      P(`I wanted to check in ahead of your ${endFmt} renewal and make sure your MaaS360 deployment continues to meet your team's needs.`) +
+      H("Current Environment") + UL(envItems) +
+      H("Value Realized") + UL(valueItems) +
+      H("Recommended Next Steps") +
+      P(narrative) +
+      (licenseNote ? P(licenseNote) : "") +
+      H("Recommended Options") +
+      (tierOptimizationNote ? P(tierOptimizationNote) : "") +
+      P(`I would like to schedule a quick call to review your current configuration, discuss any open items, and walk through renewal options — including a comparison of ${displayEd} and ${nextEd} for the upcoming term.`) +
+      P(cta("renewal")) +
+      SIG;
+  }
+
+  // ── Grammar / duplicate-word validation pass ────────────────────────────────
+  // Catches "compliance compliance", "the the", etc. before rendering.
+  function dedupe(html) {
+    // Operate on the text content of each text node only, not tag names/attrs
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      // Replace any consecutive duplicate word (case-insensitive)
+      node.nodeValue = node.nodeValue.replace(/\b(\w+)\s+\1\b/gi, "$1");
+    }
+    return tmp.innerHTML;
+  }
+
+  body = dedupe(body);
+
+  // Render output
+  document.getElementById("emailSubject").textContent = "Subject: " + subject;
+  document.getElementById("emailBody").innerHTML = body;
+  document.getElementById("emailOutput").classList.add("visible");
+  document.getElementById("emailOutput").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function copyEmail() {
+  const subjectText = document.getElementById("emailSubject").textContent.replace(/^Subject:\s*/i, "");
+  const bodyEl      = document.getElementById("emailBody");
+
+  // ── Build Outlook-ready HTML ────────────────────────────────────────────────
+  // Wrap in an inline-styled document so bold Arial headers survive paste into
+  // Outlook, Gmail, and Apple Mail without requiring any CSS class support.
+  const bodyHTML = bodyEl.innerHTML
+    // Convert .eh section headers → inline bold spans (class stripped on paste)
+    .replace(/<p class="eh">([\s\S]*?)<\/p>/g,
+      '<p style="font-family:Arial,sans-serif;font-size:10pt;font-weight:bold;margin:14px 0 4px">$1</p>')
+    // Ensure all other <p> tags carry inline styles
+    .replace(/<p(?![^>]*style=)>/g,
+      '<p style="font-family:Arial,sans-serif;font-size:10pt;margin:0 0 10px">')
+    // Ensure <li> tags carry inline styles
+    .replace(/<li(?![^>]*style=)>/g,
+      '<li style="font-family:Arial,sans-serif;font-size:10pt;margin-bottom:2px">');
+
+  const fullHTML =
+    `<html><body style="font-family:Arial,sans-serif;font-size:10pt;color:#1f2328">` +
+    `<p style="font-family:Arial,sans-serif;font-size:10pt;font-weight:bold;margin:0 0 10px">Subject: ${subjectText}</p>` +
+    bodyHTML +
+    `</body></html>`;
+
+  // ── Copy rich HTML to clipboard (preserves bold on paste into Outlook) ──────
+  if (typeof ClipboardItem !== "undefined") {
+    const blob = new Blob([fullHTML], { type: "text/html" });
+    navigator.clipboard.write([new ClipboardItem({ "text/html": blob })]).then(() => {
+      flashCopyBtn();
+    }).catch(() => fallbackCopy(subjectText));
+  } else {
+    fallbackCopy(subjectText);
+  }
+}
+
+// Plain-text fallback for browsers that don't support ClipboardItem
+function fallbackCopy(subjectText) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = document.getElementById("emailBody").innerHTML;
+  tmp.querySelectorAll("li").forEach(li => {
+    li.insertAdjacentText("beforebegin", "• ");
+    li.insertAdjacentText("afterend", "\n");
+  });
+  tmp.querySelectorAll("p, ul").forEach(el => el.insertAdjacentText("afterend", "\n"));
+  const plain = tmp.innerText.replace(/\n{3,}/g, "\n\n").trim();
+  navigator.clipboard.writeText("Subject: " + subjectText + "\n\n" + plain).then(flashCopyBtn);
+}
+
+function flashCopyBtn() {
+  const btn  = document.querySelector(".copy-btn");
+  const orig = btn.textContent;
+  btn.textContent = "✓ Copied!";
+  setTimeout(() => { btn.textContent = orig; }, 2000);
+}
+</script>
+
+</body>
+</html>
